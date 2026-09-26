@@ -1,79 +1,96 @@
-Dogfood Hackathon Portal
+
+# Dogfood Hackathon Portal
 
 A self-hostable hackathon submission and judging portal built for Dogfood Hackathon 2026.
 
-Overview
+## Overview
 
-The Dogfood Hackathon Portal provides a public project gallery, role-protected judging scores, and organizer CSV export.
+The Dogfood Hackathon Portal provides a public project gallery, individual project details pages, role-protected judging scores, and organizer CSV export.
 
 The portal uses fixture data and is designed to run locally with Docker Compose without external API calls.
 
-Features
+The GitHub Pages frontend provides a public project gallery with links to separate project details pages.
 
-- Public project gallery populated from "fixtures.json"
+## Features
+
+- Public project gallery populated from `fixtures.json`
+- Separate project details page showing project, team, and track information
+- Links to project repositories when available
 - Submission endpoint that refuses submissions after the event deadline
 - Judge-only access to judging scores
 - Protection against judges viewing another judge's scores
 - Participant access blocked from judge scores
 - Organizer-only CSV export
 - Docker Compose setup for local deployment
+- GitHub Pages frontend with project gallery and project details page
 
-Technology
+## Technology
 
 - Python 3 standard library
 - Docker and Docker Compose
 - JSON fixture data
 - HTML
+- CSS
+- JavaScript
 
-Requirements
+## Requirements
 
 - Docker with Docker Compose
 - Python 3 for running the acceptance checker
 
-Run the Portal
+## Run the Portal
 
 From the repository root, start the portal using:
 
+```bash
 docker compose up --build
+```
 
 Open the project gallery in your browser:
 
-"http://localhost:8080/projects"
+```text
+http://localhost:8080/projects
+```
 
-To stop the portal, press "Ctrl+C" in the terminal running Docker Compose.
+To stop the portal, press `Ctrl+C` in the terminal running Docker Compose.
 
-Run Acceptance Checks
+## Run Acceptance Checks
 
 Keep the portal running and open a second terminal.
 
 Run the acceptance checker and save its output:
 
+```bash
 python3 run.py .dogfood.toml > acceptance-report.txt
+```
 
 View the report:
 
+```bash
 cat acceptance-report.txt
+```
 
 The committed acceptance report records the results for the configured T1 and T2 tiers.
 
-Project Files
+## Project Files
 
-- "server.py" — HTTP server and portal routes
-- "fixtures.json" — Event and project fixture data
-- ".dogfood.toml" — Checker configuration, routes, and authentication headers
-- "Dockerfile" — Container image definition
-- "docker-compose.yml" — Local portal startup configuration
-- "run.py" — Acceptance checker supplied for the event
-- "acceptance-report.txt" — Recorded acceptance results
-- "index.html" — Frontend HTML
-- "style.css" — Frontend styles
-- "app.js" — Frontend JavaScript
-- "LICENSE" — MIT License
+- `server.py` — HTTP server and portal routes
+- `fixtures.json` — Event and project fixture data
+- `.dogfood.toml` — Checker configuration, routes, and authentication headers
+- `Dockerfile` — Container image definition
+- `docker-compose.yml` — Local portal startup configuration
+- `run.py` — Acceptance checker supplied for the event
+- `acceptance-report.txt` — Recorded acceptance results
+- `index.html` — Frontend HTML for the project gallery
+- `style.css` — Frontend styles
+- `app.js` — Frontend JavaScript for loading projects and displaying details links
+- `project-details.html` — Separate project details page for GitHub Pages
+- `LICENSE` — MIT License
 
-Acceptance Results
+## Acceptance Results
 
-The acceptance checker reported that all seven configured T1 and T2 checks passed. See "acceptance-report.txt" for the recorded results.
+The acceptance checker reported that all seven configured T1 and T2 checks passed. See `acceptance-report.txt` for the recorded results.
 
-License
+## License
 
-This project is licensed under the MIT License. See "LICENSE" for details.
+This project is licensed under the MIT License. See `LICENSE` for details.
