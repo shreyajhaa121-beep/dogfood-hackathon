@@ -43,28 +43,28 @@ Docker Configuration
 
 3. Request Flow
 
+The portal handles requests in the following order:
+
+1. A browser or acceptance checker sends an HTTP request.
+2. Docker forwards the request to the Python server.
+3. "server.py" identifies the requested route.
+4. The route handler checks access permissions when required.
+5. The server reads the necessary information from "fixtures.json".
+6. The server sends the response to the browser or checker.
+
+Request Flow Summary
+
 Browser or Acceptance Checker
-            |
-            v
-      Docker Container
-            |
-            v
-       Python Server
-        server.py
-            |
-            v
-      Route Handler
-            |
-     +------+------+
-     |      |      |
-     v      v      v
-  Gallery  Judge  Organizer
-  Route    Scores CSV Export
-     |      |      |
-     +------+------+
-            |
-            v
-      fixtures.json
+↓
+Docker Container
+↓
+Python Server ("server.py")
+↓
+Route Handler
+↓
+Gallery / Judge Scores / CSV Export
+↓
+Fixture Data ("fixtures.json")
 
 4. Routes
 
