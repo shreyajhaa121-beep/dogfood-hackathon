@@ -11,12 +11,12 @@ async function loadProjects() {
     const data = await response.json();
     const projects = data.projects || [];
 
+    gallery.replaceChildren();
+
     if (projects.length === 0) {
       gallery.textContent = "No projects available.";
       return;
     }
-
-    gallery.replaceChildren();
 
     projects.forEach((project) => {
       const card = document.createElement("article");
@@ -27,9 +27,17 @@ async function loadProjects() {
 
       const summary = document.createElement("p");
       summary.textContent =
-        project.summary || project.description || "No description available.";
+        project.summary ||
+        project.description ||
+        "No description available.";
 
-      card.append(title, summary);
+      const link = document.createElement("a");
+      link.textContent = "View project details";
+      link.href =
+        "project-details.html?id=" +
+        encodeURIComponent(project.id || "");
+
+      card.append(title, summary, link);
       gallery.appendChild(card);
     });
   } catch (error) {
