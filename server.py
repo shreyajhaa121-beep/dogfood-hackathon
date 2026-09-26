@@ -59,22 +59,45 @@ class PortalHandler(BaseHTTPRequestHandler):
             self.send_json(500, {"error": "Could not load fixture data"})
             return
 
-        if path in ("/", "/projects"):
+                if path in ("/", "/projects"):
             projects = get_list(data, "projects")
             cards = []
 
             for project in projects:
-                title = html.escape(str(project.get("title", "Untitled project")))
-                cards.append(f"<li>{title}</li>")
+                project_id = html.escape(
+                    str(project.get("id", "")), quote=True
+                )
+                title = html.escape(
+                    str(project.get("title", "Untitled project"))
+                )
+                summary = html.escape(
+                    str(project.get("summary", "No description available."))
+                )
+
+                cards.append(
+                    f"""
+                    <article class="project-card">
+                      <h3>{title}</h3>
+                      <p>{summary}</p>
+                      <a href="/project?id={project_id}">
+                        View project details
+                      </a>
+                    </article>
+                    """
+                )
 
             page = (
-                "<!doctype html><html><head><meta charset='utf-8'>"
-                "<title>Dogfood Project Gallery</title></head><body>"
+                "<!doctype html><html lang='en'><head>"
+                "<meta charset='utf-8'>"
+                "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
+                "<title>Dogfood Project Gallery</title>"
+                "</head><body>"
                 "<h1>Dogfood Hackathon Portal</h1>"
-                "<h2>Project Gallery</h2><ul>"
+                "<h2>Project Gallery</h2>"
                 + "".join(cards)
-                + "</ul></body></html>"
+                + "</body></html>"
             )
+
             self.send_body(200, page, "text/html; charset=utf-8")
             return
 
