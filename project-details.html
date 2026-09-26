@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Details | Dogfood Hackathon</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Dogfood Hackathon Portal</h1>
+    <p>Project details</p>
+  </header>
+
+  <main>
+    <section id="project-details">
+      <p>Loading project details...</p>
+    </section>
+
+    <p><a href="index.html">Back to projects</a></p>
+  </main>
+
+  <script>
+    async function loadProjectDetails() {
+      const container = document.getElementById("project-details");
+
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const projectId = params.get("id");
+
+        if (!projectId) {
+          throw new Error("Project ID is missing.");
+        }
+
+        const response = await fetch("fixtures.json");
+
+        if (!response.ok) {
+          throw new Error("Could not load project data.");
+        }
+
+        const data = await response.json();
+        const projects = data.projects || [];
+
+        const project = projects.find(
+          item => String(item.id) === projectId
+        );
+
+        if (!project) {
+          container.textContent = "Project not found.";
+          return;
+        }
+
+        const title = document.createElement("h2");
+        title.textContent = project.title || "Untitled project";
+
+        const summary = document.createElement("p");
+        summary.textContent =
+          project.summary ||
+          project.description ||
+          "No description available.";
+
+        const projectIdText = document.createElement("p");
+        projectIdText.textContent = "Project ID: " + (project.id || "N/A");
+
+        const teamText = document.createElement("p");
+        teamText.textContent =
+          "Team ID: " + (project.team || project.team_id || "Not provided");
+
+        const trackText = document.createElement("p");
+        trackText.textContent = "Track ID: " + (project.track || "Not provided");
+
+        container.replaceChildren(
+          title,
+          summary,
+          projectIdText,
+          teamText,
+          trackText
+        );
+
+        if (
+          project.repo_url &&
+          /^https?:\/\//i.test(project.repo_url)
+        ) {
+          const repoLink = document.createElement("a");
+          repoLink.href = project.repo_url;
+          repoLink.textContent = "Open project repository";
+          repoLink.target = "_blank";
+          repoLink.rel = "noopener noreferrer";
+          container.appendChild(repoLink);
+        }
+      } catch (error) {
+        container.textContent =
+          "Could not load project details. Please try again.";
+        console.error(error);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadProjectDetails);
+  </script>
+</body>
+</html>
