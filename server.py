@@ -429,15 +429,18 @@ class PortalHandler(BaseHTTPRequestHandler):
         if path == "/projects/new":
             role = get_role(self)
 
-            if role != "participant":
+            if role is None:
                 self.send_json(
                     401,
-                    {
-                        "error":
-                        "Participant authentication required"
-                    },
+                    {"error": "Authentication required"},
                 )
                 return
+                if role != "participant":
+                    self.send_json(
+                        403,
+                        {"error": "Participant access required"},
+                    )
+                    return
 
             # The supplied fixture's submission deadline is in the past.
             self.send_json(
