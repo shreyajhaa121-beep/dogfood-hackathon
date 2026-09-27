@@ -37,6 +37,7 @@ TEST_DATA = {
 class PortalTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        
         cls.fixture_patch = patch(
             "server.load_fixtures",
             return_value=TEST_DATA,
@@ -56,11 +57,14 @@ class PortalTests(unittest.TestCase):
         cls.thread.start()
 
     @classmethod
+    
     def tearDownClass(cls):
+        
         cls.httpd.shutdown()
         cls.httpd.server_close()
         cls.thread.join()
         cls.fixture_patch.stop()
+
     def request(self, method, path, token=None):
         connection = http.client.HTTPConnection(
             "127.0.0.1",
@@ -80,7 +84,7 @@ class PortalTests(unittest.TestCase):
         connection.close()
 
         return status, body, content_type
-
+        
     def test_public_gallery_shows_project(self):
         status, body, content_type = self.request(
             "GET",
@@ -166,7 +170,7 @@ class PortalTests(unittest.TestCase):
         self.assertEqual(status, 403)
         self.assertIn("Organizer access required", body)
 
-        def test_valid_login_returns_session_token(self):
+    def test_valid_login_returns_session_token(self):
         status, body, _ = self.request(
             "POST",
             "/login",
