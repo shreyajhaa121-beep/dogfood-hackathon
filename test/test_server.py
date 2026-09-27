@@ -181,6 +181,26 @@ class PortalTests(unittest.TestCase):
         self.assertEqual(status, 403)
         self.assertIn("Organizer access required", body)
 
+    def test_judge_cannot_export_csv(self):
+        status, body, _ = self.request(
+            "GET",
+            "/api/export.csv",
+            token="judge-a-demo",
+        )
+
+        self.assertEqual(status, 403)
+        self.assertIn("Organizer access required", body)
+
+    def test_organizer_cannot_view_judge_scores(self):
+        status, body, _ = self.request(
+            "GET",
+            "/api/judge/scores",
+            token="organizer-demo",
+        )
+
+        self.assertEqual(status, 403)
+        self.assertIn("Judge access required", body)
+    
     def test_valid_login_returns_session_token(self):
         status, body, _ = self.request(
             "POST",
