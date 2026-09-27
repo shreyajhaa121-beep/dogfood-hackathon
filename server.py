@@ -331,6 +331,15 @@ class PortalHandler(BaseHTTPRequestHandler):
                 "text/csv; charset=utf-8",
             )
             return
+            if path == "/api/event":
+                self.send_json(
+                    200,
+                    {
+                        "event": data.get("event", {}),
+                        "tracks": data.get("tracks", []),
+                    },
+                )
+                return
 
         self.send_json(404, {"error": "Route not found"})
 
