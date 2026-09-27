@@ -65,7 +65,7 @@ class PortalTests(unittest.TestCase):
         cls.thread.join()
         cls.fixture_patch.stop()
 
-    def request(self, method, path, token=None):
+    def request(self, method, path, token=None, body=None):
         connection = http.client.HTTPConnection(
             "127.0.0.1",
             self.port,
@@ -73,10 +73,21 @@ class PortalTests(unittest.TestCase):
         )
 
         headers = {}
+
         if token:
             headers["Authorization"] = f"Bearer {token}"
 
-        connection.request(method, path, headers=headers)
+        if body is not None:
+            headers["Content-Type"] = "application/json"
+            body = json.dumps(body)
+
+        connection.request(
+            method,
+            path,
+            body=body,
+            headers=headers,
+        )
+
         response = connection.getresponse()
         status = response.status
         body = response.read().decode("utf-8")
