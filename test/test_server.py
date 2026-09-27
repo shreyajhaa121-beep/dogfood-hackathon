@@ -1,4 +1,4 @@
-
+import json
 import http.client
 import threading
 import unittest
@@ -61,7 +61,6 @@ class PortalTests(unittest.TestCase):
         cls.httpd.server_close()
         cls.thread.join()
         cls.fixture_patch.stop()
-
     def request(self, method, path, token=None):
         connection = http.client.HTTPConnection(
             "127.0.0.1",
@@ -166,6 +165,82 @@ class PortalTests(unittest.TestCase):
 
         self.assertEqual(status, 403)
         self.assertIn("Organizer access required", body)
+
+        def test_valid_login_returns_session_token(self):
+        status, body, _ = self.request(
+            "POST",
+            "/login",
+            body={
+                "username": "participant",
+                "password": "participant-demo",
+            },
+        )
+
+        self.assertEqual(status, 200)
+
+        result = json.loads(body)
+        self.assertIn("token", result)
+        self.assertEqual(result["role"], "participant")
+        self.assertEqual(result["expires_in"], 3600)
+
+    def test_invalid_login_is_rejected(self):
+        status, body, _ = self.request(
+            "POST",
+            "/login",
+            body={
+                "username": "participant",
+                "password": "wrong-password",
+            },
+        )
+
+        self.assertEqual(status, 401)
+        self.assertIn(
+            "Invalid username or password",
+            body,
+        )
+
+    def test_logout_invalidates_session(self):
+        login_status, login_body, _ = self.request(
+            "POST",
+            "/login",
+            body={
+                "username": "participant",
+                "password": "participant-demo",
+            },
+        )
+
+        self.assertEqual(login_status, 200)
+        token = json.loads(login_body)["token"]
+
+        status, body, _ = self.request(
+            "POST",
+            "/projects/new",
+            token=token,
+        )
+
+        self.assertEqual(status, 409)
+        self.assertIn("Submission period is closed", body)
+
+        status, body, _ = self.request(
+            "POST",
+            "/logout",
+            token=token,
+        )
+
+        self.assertEqual(status, 200)
+        self.assertIn("Logged out successfully", body)
+
+        status, body, _ = self.request(
+            "POST",
+            "/projects/new",
+            token=token,
+        )
+
+        self.assertEqual(status, 401)
+        self.assertIn(
+            "Participant authentication required",
+            body,
+        )
 
     def test_closed_event_rejects_submission(self):
         status, body, _ = self.request(
