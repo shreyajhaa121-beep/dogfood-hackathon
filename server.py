@@ -1,3 +1,6 @@
+import secrets
+import time
+import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
@@ -16,6 +19,28 @@ TOKENS = {
     "participant-demo": "participant",
 }
 
+DEMO_USERS = {
+    "organizer": {
+        "password": "organizer-demo",
+        "role": "organizer",
+    },
+    "judge-a": {
+        "password": "judge-a-demo",
+        "role": "judge_a",
+    },
+    "judge-b": {
+        "password": "judge-b-demo",
+        "role": "judge_b",
+    },
+    "participant": {
+        "password": "participant-demo",
+        "role": "participant",
+    },
+}
+
+SESSIONS = {}
+SESSION_LOCK = threading.Lock()
+SESSION_TTL = 60 * 60  # 1 hour
 
 def load_fixtures():
     with FIXTURE_FILE.open("r", encoding="utf-8") as file:
@@ -25,11 +50,28 @@ def load_fixtures():
 def get_role(handler):
     header = handler.headers.get("Authorization", "")
 
-    if header.startswith("Bearer "):
-        token = header.removeprefix("Bearer ").strip()
-        return TOKENS.get(token)
+    if not header.startswith("Bearer "):
+        return None
 
-    return None
+    token = header.removeprefix("Bearer ").strip()
+
+    # Keep existing demo tokens working.
+    role = TOKENS.get(token)
+    if role:
+        return role
+
+    # Validate login sessions.
+    with SESSION_LOCK:
+        session = SESSIONS.get(token)
+
+        if not session:
+            return None
+
+        if session["expires_at"] <= time.time():
+            del SESSIONS[token]
+            return None
+
+        return session["role"]
 
 
 def get_list(data, key):
@@ -295,6 +337,95 @@ class PortalHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         path = urlparse(self.path).path
 
+        # Login
+        if path == "/login":
+            try:
+                length = int(
+                    self.headers.get("Content-Length", "0")
+                )
+                body = json.loads(
+                    self.rfile.read(length).decode("utf-8")
+                )
+            except (ValueError, json.JSONDecodeError):
+                self.send_json(
+                    400,
+                    {"error": "Invalid JSON"},
+                )
+                return
+
+            if not isinstance(body, dict):
+                self.send_json(
+                    400,
+                    {"error": "Invalid request body"},
+                )
+                return
+
+            username = body.get("username", "")
+            password = body.get("password", "")
+
+            user = DEMO_USERS.get(username)
+
+            if not user or user["password"] != password:
+                self.send_json(
+                    401,
+                    {"error": "Invalid username or password"},
+                )
+                return
+
+            token = secrets.token_urlsafe(32)
+
+            with SESSION_LOCK:
+                SESSIONS[token] = {
+                    "role": user["role"],
+                    "expires_at": time.time() + SESSION_TTL,
+                }
+
+            self.send_json(
+                200,
+                {
+                    "token": token,
+                    "role": user["role"],
+                    "expires_in": SESSION_TTL,
+                },
+            )
+            return
+
+        # Logout
+        if path == "/logout":
+            header = self.headers.get("Authorization", "")
+
+            if not header.startswith("Bearer "):
+                self.send_json(
+                    401,
+                    {"error": "Authentication required"},
+                )
+                return
+
+            token = header.removeprefix("Bearer ").strip()
+
+            with SESSION_LOCK:
+                session = SESSIONS.get(token)
+
+                if (
+                    not session
+                    or session["expires_at"] <= time.time()
+                ):
+                    SESSIONS.pop(token, None)
+                    self.send_json(
+                        401,
+                        {"error": "Invalid or expired session"},
+                    )
+                    return
+
+                del SESSIONS[token]
+
+            self.send_json(
+                200,
+                {"message": "Logged out successfully"},
+            )
+            return
+
+        # New project submission
         if path == "/projects/new":
             role = get_role(self)
 
@@ -315,9 +446,11 @@ class PortalHandler(BaseHTTPRequestHandler):
             )
             return
 
-        self.send_json(404, {"error": "Route not found"})
-
-
+        # Unknown POST route
+        self.send_json(
+            404,
+            {"error": "Route not found"},
+        )
 if __name__ == "__main__":
     server = ThreadingHTTPServer(
         ("0.0.0.0", 8080),
