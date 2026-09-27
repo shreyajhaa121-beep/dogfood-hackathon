@@ -273,7 +273,7 @@ class PortalTests(unittest.TestCase):
 
         self.assertEqual(status, 401)
         self.assertIn(
-            "Participant authentication required",
+            "Authentication required",
             body,
         )
 
