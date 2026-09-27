@@ -159,6 +159,17 @@ class PortalTests(unittest.TestCase):
         self.assertEqual(status, 403)
         self.assertIn("another judge", body)
 
+    def test_public_event_details(self):
+        status, body, content_type = self.request(
+            "GET",
+            "/api/event",
+        )
+
+        self.assertEqual(status, 200)
+        self.assertIn("application/json", content_type)
+        self.assertIn("Sample Hack 2026", body)
+        self.assertIn("tracks", body)
+
     def test_organizer_can_export_csv(self):
         status, body, content_type = self.request(
             "GET",
