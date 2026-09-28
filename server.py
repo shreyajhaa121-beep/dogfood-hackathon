@@ -42,6 +42,7 @@ SESSIONS = {}
 SESSION_LOCK = threading.Lock()
 SESSION_TTL = 60 * 60  # 1 hour
 
+
 def load_fixtures():
     with FIXTURE_FILE.open("r", encoding="utf-8") as file:
         return json.load(file)
@@ -265,6 +266,17 @@ class PortalHandler(BaseHTTPRequestHandler):
             )
             return
 
+        # Event information
+        if path == "/api/event":
+            self.send_json(
+                200,
+                {
+                    "event": data.get("event", {}),
+                    "tracks": data.get("tracks", []),
+                },
+            )
+            return
+
         # Judge scores
         if path == "/api/judge/scores":
             if role not in ("judge_a", "judge_b"):
@@ -276,7 +288,7 @@ class PortalHandler(BaseHTTPRequestHandler):
 
             requested_judge = query.get("judge", [None])[0]
 
-            if requested_judge == "judge_a" and role != "judge_a":
+            if requested_judge and requested_judge != role:
                 self.send_json(
                     403,
                     {
@@ -331,15 +343,6 @@ class PortalHandler(BaseHTTPRequestHandler):
                 "text/csv; charset=utf-8",
             )
             return
-            if path == "/api/event":
-                self.send_json(
-                    200,
-                    {
-                        "event": data.get("event", {}),
-                        "tracks": data.get("tracks", []),
-                    },
-                )
-                return
 
         self.send_json(404, {"error": "Route not found"})
 
@@ -444,12 +447,13 @@ class PortalHandler(BaseHTTPRequestHandler):
                     {"error": "Authentication required"},
                 )
                 return
-                if role != "participant":
-                    self.send_json(
-                        403,
-                        {"error": "Participant access required"},
-                    )
-                    return
+
+            if role != "participant":
+                self.send_json(
+                    403,
+                    {"error": "Participant access required"},
+                )
+                return
 
             # The supplied fixture's submission deadline is in the past.
             self.send_json(
@@ -463,6 +467,8 @@ class PortalHandler(BaseHTTPRequestHandler):
             404,
             {"error": "Route not found"},
         )
+
+
 if __name__ == "__main__":
     server = ThreadingHTTPServer(
         ("0.0.0.0", 8080),
