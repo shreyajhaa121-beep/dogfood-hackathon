@@ -1,7 +1,7 @@
+name: dogfood-hackathon
 
 services:
   portal:
     build: .
     ports:
       - "8000:8080"
-      
