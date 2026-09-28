@@ -112,6 +112,23 @@ class PortalHandler(BaseHTTPRequestHandler):
             status,
             json.dumps(data, ensure_ascii=False),
         )
+        
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header(
+            "Access-Control-Allow-Origin",
+            "https://shreyajhaa121-beep.github.io",
+        )
+        self.send_header(
+            "Access-Control-Allow-Methods",
+            "GET, POST, OPTIONS",
+        )
+        self.send_header(
+            "Access-Control-Allow-Headers",
+            "Authorization, Content-Type",
+        )
+        self.end_headers()
+
 
     def do_GET(self):
         parsed = urlparse(self.path)
