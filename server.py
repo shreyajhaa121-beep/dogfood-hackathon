@@ -90,6 +90,18 @@ class PortalHandler(BaseHTTPRequestHandler):
     ):
         encoded = body.encode("utf-8")
         self.send_response(status)
+        self.send_header(
+            "Access-Control-Allow-Origin",
+            "https://shreyajhaa121-beep.github.io",
+        )
+        self.send_header(
+            "Access-Control-Allow-Methods",
+            "GET, POST, OPTIONS",
+        )
+        self.send_header(
+            "Access-Control-Allow-Headers",
+            "Authorization, Content-Type",
+        )
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(encoded)))
         self.end_headers()
