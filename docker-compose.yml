@@ -1,7 +1,10 @@
+cat > docker-compose.yml <<'EOF'
 name: dogfood-hackathon
-
 services:
   portal:
     build: .
     ports:
-      - "8000:8080"
+      - target: 8080
+        published: "8000"
+        protocol: tcp
+EOF
