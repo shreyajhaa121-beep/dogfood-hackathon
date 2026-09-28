@@ -1,5 +1,7 @@
+
 services:
   portal:
     build: .
     ports:
-  - "8000:8080"
+      - "8000:8080"
+      
