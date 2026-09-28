@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,15 +10,73 @@
 <body>
   <header>
     <h1>Dogfood Hackathon Portal</h1>
-    <p>Explore hackathon projects and submissions.</p>
+    <p>Explore projects, judging scores, and event status.</p>
   </header>
 
   <main>
-    <section>
+    <section class="portal-section">
       <h2>Project Gallery</h2>
-      <div id="project-gallery">
-        Loading projects...
-      </div>
+      <div id="project-gallery">Loading projects...</div>
+    </section>
+
+    <section class="portal-section">
+      <h2>Judge Access</h2>
+      <p>Demo judge access and score review.</p>
+
+      <label for="judge-token">Demo judge token</label>
+      <input
+        id="judge-token"
+        type="password"
+        placeholder="Enter judge demo token"
+        autocomplete="off"
+      >
+
+      <button id="load-scores-button" type="button">
+        Load My Scores
+      </button>
+
+      <p id="judge-message" class="status-message" aria-live="polite"></p>
+      <div id="judge-scores"></div>
+    </section>
+
+    <section class="portal-section">
+      <h2>Organizer Export</h2>
+      <p>Download the judging data as a CSV file.</p>
+
+      <label for="organizer-token">Organizer demo token</label>
+      <input
+        id="organizer-token"
+        type="password"
+        placeholder="Enter organizer demo token"
+        autocomplete="off"
+      >
+
+      <button id="export-csv-button" type="button">
+        Export Scores CSV
+      </button>
+
+      <p id="export-message" class="status-message" aria-live="polite"></p>
+    </section>
+
+    <section class="portal-section">
+      <h2>Project Submission</h2>
+      <p id="event-status">Checking event status...</p>
+
+      <form id="submission-form">
+        <label for="participant-token">Participant demo token</label>
+        <input
+          id="participant-token"
+          type="password"
+          placeholder="Enter participant demo token"
+          autocomplete="off"
+        >
+
+        <button id="submit-project-button" type="submit">
+          Submit Project
+        </button>
+      </form>
+
+      <p id="submission-message" class="status-message" aria-live="polite"></p>
     </section>
   </main>
 
