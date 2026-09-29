@@ -205,24 +205,27 @@ async function exportScoresCsv() {
 
 // Display event status
 async function loadEventStatus() {
-  const statusElement = document.getElementById("event-status");
+    const statusElement = document.getElementById('event-status');
 
-  try {
-    const response = await fetch(apiUrl("/api/event"));
-    if (!response.ok) throw new Error("Could not load event status.");
+    try {
+        const response = await fetch(apiUrl("/api/event"));
+        if (!response.ok) throw new Error("Could not load event status.");
 
-    const data = await response.json();
-    const status = data.status || data.event_status || "Unknown";
+        const data = await response.json();
+        const closesAt = data.event?.submissions_close;
 
-    statusElement.textContent = `Event status: ${status}`;
-  } catch (error) {
-    statusElement.textContent =
-      "Event status could not be loaded. Check the backend connection.";
-    console.error(error);
-  }
+        const eventStatus = closesAt
+            ? (new Date(closesAt) > new Date() ? "Open" : "Closed")
+            : "Unknown";
+
+        statusElement.textContent = `Event status: ${eventStatus}`;
+    } catch (error) {
+        statusElement.textContent =
+            "Event status could not be loaded. Check the backend connection.";
+        console.error(error);
+    }
 }
 
-// Attempt submission; show the backend's closed-event response
 async function submitProject(event) {
   event.preventDefault();
 
