@@ -6,7 +6,7 @@
  * Replace this placeholder with your Codespaces
  * forwarded Port 8080 URL, without a trailing slash.
  */
-const API_BASE_URL = "https://probable-space-succotash-779pr7pgw649hj47-8080.app.github.dev";
+const API_BASE_URL = "https://upgraded-waffle-4q7wgqwx6r6r2qxj-8080.app.github.dev";
 
 function apiUrl(path) {
   return `${API_BASE_URL}${path}`;
