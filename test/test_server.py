@@ -9,6 +9,21 @@ import server
 
 
 TEST_DATA = {
+    "event": {
+        "id": "hack-2026",
+        "title": "Sample Hack 2026",
+        "description": "A sample hackathon event for testing.",
+        "submission_deadline": "2026-06-01T00:00:00Z",
+    },
+    "tracks": [
+        {"id": "trk_01", "name": "General"},
+        {"id": "trk_03", "name": "Accessibility"},
+        {"id": "trk_04", "name": "Security"},
+        {"id": "trk_05", "name": "Climate"},
+        {"id": "trk_06", "name": "Health"},
+        {"id": "trk_07", "name": "Education"},
+        {"id": "trk_08", "name": "Open Hardware"},
+    ],
     "projects": [
         {
             "id": "test-project-1",
